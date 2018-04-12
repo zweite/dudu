@@ -1,0 +1,23 @@
+[[Redis]]
+  Host = "127.0.0.1"
+  Port = 6379
+  User = ""
+  Passwd = ""
+
+[[Etcd]]
+  Host = "127.0.0.1"
+  Port = 4010
+  User = ""
+  Passwd = ""
+
+[[Etcd]]
+  Host = "127.0.0.1"
+  Port = 4011
+  User = ""
+  Passwd = ""
+
+[[Etcd]]
+  Host = "127.0.0.1"
+  Port = 4012
+  User = ""
+  Passwd = ""

@@ -1,8 +1,9 @@
 package agent
 
 import (
-	"dudu/commons/compactor"
 	"fmt"
+
+	"dudu/commons/compactor"
 )
 
 func (app *AgentNode) initCompactor() error {

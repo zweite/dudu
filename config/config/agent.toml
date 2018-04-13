@@ -1,6 +1,6 @@
 RootDir = ""
 Addr = ":8071"
-Compactor = "gzip"
+Compactor = "snappy"
 Pipe = "http"
 BatchDuration = 5
 BatchLength = 100

@@ -1,10 +1,10 @@
 package agent
 
 import (
-	"dudu/commons/compactor"
 	"encoding/json"
 	"sync"
 
+	"dudu/commons/compactor"
 	"dudu/commons/log"
 	"dudu/commons/util"
 	"dudu/config"

@@ -18,6 +18,10 @@ func NewGZip() *GZip {
 	return new(GZip)
 }
 
+func (g *GZip) Name() string {
+	return "gzip"
+}
+
 func (g *GZip) Encode(src []byte) (dst []byte, err error) {
 	var buf bytes.Buffer
 	zw := gzip.NewWriter(&buf)

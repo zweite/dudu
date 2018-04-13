@@ -32,7 +32,6 @@ func NewAgentNodeCmd(nodeProvider agent.AgentNodeProvider) *cobra.Command {
 				logger.Info("Inited node", "nodeInfo", n.NodeInfo())
 			}
 			// Trap signal, run forever.
-			logger.Info("run node", "nodeInfo", n.NodeInfo())
 			go n.Run()
 			event.AddHook(event.HightPriority, n.Stop)
 			event.WaitExit()

@@ -13,6 +13,10 @@ func NewSnappy() *Snappy {
 	return new(Snappy)
 }
 
+func (s *Snappy) Name() string {
+	return "snappy"
+}
+
 func (s *Snappy) Encode(src []byte) (dst []byte, err error) {
 	dst = snappy.Encode(nil, src)
 	return

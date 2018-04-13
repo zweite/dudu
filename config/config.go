@@ -52,8 +52,9 @@ func (c *Config) SetRoot(root string) {
 
 type BaseConfig struct {
 	RootDir  string `mapstructure:"home"`
-	IPSeg    []byte `mapstructure:"ipSeg"` // 本节点所属IP段
-	IP       string `mapstructure:"ip"`    // 本节点IP, 自动填充
+	HostName string `mapstructure:"host_name"` // 节点主机名
+	IPSeg    []byte `mapstructure:"ip_seg"`    // 本节点所属IP段
+	IP       string `mapstructure:"ip"`        // 本节点IP, 自动填充
 	LogLevel string `mapstructure:"log_level"`
 }
 
@@ -79,6 +80,7 @@ func ParseConfig() *Config {
 func DefaultBaseConfig() BaseConfig {
 	return BaseConfig{
 		IPSeg:    DefaultIPSeg(),
+		HostName: getHostName(),
 		IP:       getLocalIP(DefaultIPSeg()),
 		LogLevel: DefaultLogLevel(),
 	}
@@ -97,7 +99,13 @@ func ParseBaseConfig() BaseConfig {
 
 	config.RootDir = RootDir
 	config.IP = getLocalIP(config.IPSeg)
+	config.HostName = getHostName()
 	return config
+}
+
+func getHostName() string {
+	hostname, _ := os.Hostname()
+	return hostname
 }
 
 // 获取本地IP

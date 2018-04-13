@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"dudu/models"
 	"dudu/modules/agent/collector"
 	_ "dudu/modules/agent/collector/collect"
 )
@@ -48,7 +49,10 @@ func (app *AgentNode) asyncPush(collectResultChan <-chan *collector.CollectResul
 		select {
 		case <-timer.C:
 			if len(collectResults) > 0 {
-				app.push(collectResults)
+				if err := app.push(collectResults); err != nil {
+					app.logger.Warnf("push collect results err:%s", err.Error())
+				}
+
 				collectResults = collectResults[0:0] // 重置
 			}
 
@@ -56,7 +60,10 @@ func (app *AgentNode) asyncPush(collectResultChan <-chan *collector.CollectResul
 		case collectResult, ok := <-collectResultChan:
 			if !ok {
 				if len(collectResults) > 0 {
-					app.push(collectResults)
+					if err := app.push(collectResults); err != nil {
+						app.logger.Warnf("push collect results err:%s", err.Error())
+					}
+
 					collectResults = collectResults[0:0] // 重置
 				}
 				app.logger.Info("清理完成剩余日志")
@@ -66,7 +73,9 @@ func (app *AgentNode) asyncPush(collectResultChan <-chan *collector.CollectResul
 
 			collectResults = append(collectResults, collectResult)
 			if len(collectResults) >= batchLength {
-				app.push(collectResults)
+				if err := app.push(collectResults); err != nil {
+					app.logger.Warnf("push collect results err:%s", err.Error())
+				}
 				collectResults = collectResults[0:0] // 重置
 				timer.Reset(batchDuration)           // 重置
 			}
@@ -74,21 +83,37 @@ func (app *AgentNode) asyncPush(collectResultChan <-chan *collector.CollectResul
 	}
 }
 
-func (app *AgentNode) push(collectResults []*collector.CollectResult) {
+func (app *AgentNode) push(collectResults []*collector.CollectResult) (err error) {
 	value, err := json.Marshal(collectResults)
-	rawLength := len(value)
-	if err == nil {
-		if app.compactor != nil {
-			// comparess
-			value, err = app.compactor.Encode(value)
-		}
+	if err != nil {
+		return
+	}
+
+	var compactorName string
+	if app.compactor != nil {
+		// comparess
+		value, err = app.compactor.Encode(value)
+		compactorName = app.compactor.Name()
 	}
 
 	if err != nil {
 		// compactor err
-		app.logger.Warnf("push encode err:%s", err.Error())
+		return
 	}
 
-	compressLength := len(value)
-	app.logger.Infof("rawLength:%d compressLength:%d", rawLength, compressLength)
+	metric := &models.MetricValue{
+		Endpoint:  app.cfg.IP,
+		HostName:  app.cfg.HostName,
+		Compactor: compactorName,
+		Value:     value,
+		Tags:      "",
+		Timestamp: time.Now().UnixNano() / int64(time.Millisecond),
+	}
+
+	data, err := json.Marshal(metric)
+	if err != nil {
+		return
+	}
+
+	return app.pipe.Push(data)
 }

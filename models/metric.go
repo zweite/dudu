@@ -1,11 +1,10 @@
 package models
 
 type MetricValue struct {
-	Endpoint  string      `json:"endpoint"`
-	Metric    string      `json:"metric"`
-	Value     interface{} `json:"value"`
-	Step      int64       `json:"step"`
-	Type      string      `json:"counterType"`
-	Tags      string      `json:"tags"`
-	Timestamp int64       `json:"timestamp"`
+	Endpoint  string `json:"endpoint"`  // 节点IP
+	HostName  string `json:"hostName"`  // 节点主机名
+	Compactor string `json:"compactor"` // 压缩算法
+	Value     []byte `json:"value"`     // 采集数据
+	Tags      string `json:"tags"`      // 标签
+	Timestamp int64  `json:"timestamp"` // 上传时间戳
 }

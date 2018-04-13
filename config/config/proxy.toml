@@ -1,3 +1,18 @@
 RootDir = ""
-Addr = ":8070"
+HttpAddr = ":8070"
+Mode = "persistence"
 Debug = false
+
+[HttpPipePop]
+  Auth = "midea"
+  Pattern = "/collect"
+
+[Persistence]
+  Engine = "local"
+  LocalPath = "/Users/zweite/Documents/go_proj/src/dudu/config/data/persistence.data"
+
+[Forward]
+  Pipe = "http"
+  [Forward.HttpPipePush]
+    Addr = "http://127.0.0.1:8070/collect"
+    Auth = "midea"

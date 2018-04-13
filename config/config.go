@@ -17,19 +17,20 @@ import (
 // 配置
 
 var (
-	DefaultDir = "${GOPATH}/src/dudu/config"
+	DefaultDir = os.ExpandEnv("${GOPATH}/src/dudu/config")
 	RootDir    = DefaultDir
 )
 
 const (
 	configDir          = "config"
+	dataDir            = "data"
 	baseConfigName     = "config.toml"
 	proxyConfigName    = "proxy.toml"
 	agentConfigName    = "agent.toml"
 	resourceConfigName = "resource.toml"
 
-	AddrFlag  = "addr"
-	DebugFlag = "debug"
+	HttpAddrFlag = "http_addr"
+	DebugFlag    = "debug"
 )
 
 var (

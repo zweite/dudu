@@ -1,12 +1,12 @@
 RootDir = ""
-Addr = ":8071"
-Compactor = "snappy"
+HttpAddr = ":8071"
+Compactor = "gzip"
 Pipe = "http"
 BatchDuration = 5
 BatchLength = 100
 Debug = false
 
-[HttpPipe]
+[HttpPipePush]
   Addr = "http://127.0.0.1:8070/collect"
   Auth = "midea"
 

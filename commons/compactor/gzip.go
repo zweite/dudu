@@ -9,7 +9,7 @@ import (
 
 // gzip compactor
 var (
-	_ Compactor = NewGZip()
+	defaultGZipCompactor Compactor = NewGZip()
 )
 
 type GZip struct{}
@@ -43,7 +43,7 @@ func (g *GZip) Decode(src []byte) (dst []byte, err error) {
 		return
 	}
 
-	buf := bytes.NewBuffer(make([]byte, 1024))
+	buf := bytes.NewBuffer([]byte{})
 	_, err = io.Copy(buf, zr)
 	dst = buf.Bytes()
 	return

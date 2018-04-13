@@ -4,7 +4,7 @@ import "github.com/golang/snappy"
 
 // snappy compress
 var (
-	_ Compactor = NewSnappy()
+	defaultSnappyCompactor Compactor = NewSnappy()
 )
 
 type Snappy struct{}

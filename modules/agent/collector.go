@@ -31,7 +31,7 @@ func (app *AgentNode) stopCollect() {
 }
 
 // 推送采集信息
-func (app *AgentNode) asyncPush(collectResultChan <-chan *collector.CollectResult) {
+func (app *AgentNode) asyncPush(collectResultChan <-chan *models.CollectResult) {
 	// 过期时长
 	batchDuration := time.Second * time.Duration(app.cfg.Agent.BatchDuration)
 	if batchDuration <= 0 {
@@ -44,7 +44,7 @@ func (app *AgentNode) asyncPush(collectResultChan <-chan *collector.CollectResul
 	}
 
 	timer := time.NewTimer(batchDuration)
-	collectResults := make([]*collector.CollectResult, 0, batchLength)
+	collectResults := make([]*models.CollectResult, 0, batchLength)
 	for {
 		select {
 		case <-timer.C:
@@ -83,7 +83,7 @@ func (app *AgentNode) asyncPush(collectResultChan <-chan *collector.CollectResul
 	}
 }
 
-func (app *AgentNode) push(collectResults []*collector.CollectResult) (err error) {
+func (app *AgentNode) push(collectResults []*models.CollectResult) (err error) {
 	value, err := json.Marshal(collectResults)
 	if err != nil {
 		return

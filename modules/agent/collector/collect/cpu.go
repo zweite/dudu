@@ -1,6 +1,7 @@
 package collect
 
 import (
+	"dudu/models"
 	"dudu/modules/agent/collector"
 
 	"github.com/shirou/gopsutil/cpu"
@@ -18,6 +19,10 @@ func (c *CPUCount) Name() string {
 	return "CPUCount"
 }
 
+func (c *CPUCount) Type() models.MetricType {
+	return models.InfoMetricType
+}
+
 // CPU 信息
 type CPUInfo struct{}
 
@@ -29,6 +34,10 @@ func (c *CPUInfo) Name() string {
 	return "CPUInfo"
 }
 
+func (c *CPUInfo) Type() models.MetricType {
+	return models.InfoMetricType
+}
+
 // CPU 负载
 type CPUTimes struct{}
 
@@ -38,6 +47,10 @@ func (c *CPUTimes) Collect() (interface{}, error) {
 
 func (c *CPUTimes) Name() string {
 	return "CPUTimes"
+}
+
+func (c *CPUTimes) Type() models.MetricType {
+	return models.IndicatorMetricType
 }
 
 func init() {

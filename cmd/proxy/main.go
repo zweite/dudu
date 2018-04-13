@@ -1,11 +1,11 @@
 package main
 
 import (
-	"dudu/cmd/agent/commands"
+	"dudu/cmd/proxy/commands"
 	"dudu/cmd/version"
 	"dudu/commons/cli"
 	"dudu/config"
-	"dudu/modules/agent"
+	"dudu/modules/proxy"
 )
 
 func main() {
@@ -13,7 +13,7 @@ func main() {
 	rootCmd.AddCommand(
 		version.VersionCmd)
 
-	rootCmd.AddCommand(commands.NewAgentNodeCmd(agent.NewAgentNode))
+	rootCmd.AddCommand(commands.NewProxyNodeCmd(proxy.NewProxyNode))
 
 	cmd := cli.PrepareBaseCmd(rootCmd,
 		"TM",

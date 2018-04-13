@@ -3,6 +3,8 @@ package collector
 import (
 	"dudu/commons/log"
 	"dudu/config"
+	"dudu/models"
+	"encoding/json"
 	"sync"
 	"time"
 )
@@ -18,15 +20,8 @@ func init() {
 // 采集器
 type Collector interface {
 	Collect() (interface{}, error) // collect info
+	Type() models.MetricType       // 采集数据类型
 	Name() string                  // collector name
-}
-
-// 采集结果
-type CollectResult struct {
-	Metric  string      // 采集器名称
-	Value   interface{} // 采集信息
-	Version int64       // 采集数据版本
-	Err     error       // 采集出错信息
 }
 
 type CollectorManager struct {
@@ -34,7 +29,7 @@ type CollectorManager struct {
 	wg                *sync.WaitGroup
 	mux               *sync.RWMutex
 	collectsConfig    []*config.CollectConfig
-	collectResultChan chan *CollectResult
+	collectResultChan chan *models.CollectResult
 	stopChans         map[string]chan struct{}
 }
 
@@ -45,7 +40,7 @@ func NewCollectorManager(logger log.Logger, cfgs []*config.CollectConfig) *Colle
 		wg:                new(sync.WaitGroup),
 		mux:               new(sync.RWMutex),
 		stopChans:         make(map[string]chan struct{}),
-		collectResultChan: make(chan *CollectResult, 100),
+		collectResultChan: make(chan *models.CollectResult, 100),
 	}
 }
 
@@ -60,7 +55,7 @@ func (c *CollectorManager) StartCollector(name string, duration time.Duration) b
 }
 
 // 开始采集
-func (c *CollectorManager) Run() <-chan *CollectResult {
+func (c *CollectorManager) Run() <-chan *models.CollectResult {
 	validateCollectors := getValidateCollectors(c.collectsConfig)
 	for _, collector := range validateCollectors {
 		if cfg := c.getCollectorCfg(collector.Name()); cfg == nil {
@@ -145,10 +140,21 @@ func (c *CollectorManager) run(duration time.Duration, collector Collector) bool
 				return
 			case <-ticker.C:
 				result, err := collector.Collect()
-				c.collectResultChan <- &CollectResult{
-					Metric: collector.Name(),
-					Value:  result,
-					Err:    err,
+				var msg json.RawMessage
+				var errMsg string
+				if err != nil {
+					errMsg = err.Error()
+				} else {
+					msg, err = json.Marshal(result)
+					if err != nil {
+						errMsg = err.Error()
+					}
+				}
+				c.collectResultChan <- &models.CollectResult{
+					Metric:  collector.Name(),
+					Value:   msg,
+					Version: time.Now().UnixNano() / int64(time.Millisecond),
+					Err:     errMsg,
 				}
 			}
 		}

@@ -6,6 +6,7 @@ import (
 
 	"dudu/commons/compactor"
 	"dudu/commons/log"
+	"dudu/commons/pipe"
 	"dudu/commons/util"
 	"dudu/config"
 	"dudu/modules/agent/collector"
@@ -19,7 +20,7 @@ type AgentNode struct {
 	logger       log.Logger
 	collectorMag *collector.CollectorManager
 	compactor    compactor.Compactor
-	pipe         Pipe
+	pipe         pipe.Pipe
 	ctx          *AgentContext
 }
 

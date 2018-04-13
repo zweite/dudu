@@ -5,19 +5,20 @@ import (
 
 	"dudu/commons/event"
 	"dudu/config"
-	"dudu/modules/agent"
+	"dudu/modules/proxy"
 
 	"github.com/spf13/cobra"
 )
 
-func AddAgentNodeFlags(cmd *cobra.Command) {
-	cmd.Flags().String(config.HttpAddrFlag, cfg.Agent.HttpAddr, "node http addr")
+func AddProxyNodeFlags(cmd *cobra.Command) {
+	cmd.Flags().String(config.HttpAddrFlag, cfg.Proxy.HttpAddr, "node http addr")
+	cmd.Flags().String(config.ProxyModeFlag, cfg.Proxy.Mode, "proxy mode")
 }
 
-func NewAgentNodeCmd(nodeProvider agent.AgentNodeProvider) *cobra.Command {
+func NewProxyNodeCmd(nodeProvider proxy.ProxyNodeProvider) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "agent",
-		Short: "Run the agent node",
+		Use:   "proxy",
+		Short: "Run the proxy node",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Create & Run node
 			n, err := nodeProvider(cfg, logger)
@@ -36,12 +37,8 @@ func NewAgentNodeCmd(nodeProvider agent.AgentNodeProvider) *cobra.Command {
 			event.WaitExit()
 			return nil
 		},
-		PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
-			logger.Info("will be exit")
-			return nil
-		},
 	}
 
-	AddAgentNodeFlags(cmd)
+	AddProxyNodeFlags(cmd)
 	return cmd
 }

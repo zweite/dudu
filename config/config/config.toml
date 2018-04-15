@@ -1,5 +1,2 @@
-RootDir = ""
-HostName = "tike.local"
-IPSeg = [10, 73]
-IP = "10.73.43.30"
-LogLevel = "info"
+ip_seg = [192, 168]
+log_level = "info"

@@ -7,25 +7,25 @@ import (
 )
 
 type AgentConfig struct {
-	RootDir       string              `mapstructure:"home"`
-	HttpAddr      string              `mapstructure:"addr"`           // 服务地址
-	Compactor     string              `mapstructure:"compactor"`      // 压缩算法
-	Pipe          string              `mapstructure:"pipe"`           // 传输管道
-	HttpPipePush  *HttpPipePushConfig `mapstructure:"http_pipe_push"` // HTTP 管道配置
-	BatchDuration int64               `mapstructure:"batch_duration"` // 批量传输最大间隔
-	BatchLength   int                 `mapstructure:"batch_length"`   // 批量传输最大长度
-	Collects      []*CollectConfig    `mapstructure:"collects"`       // 采集器配置
-	Debug         bool                `mapstructure:"debug"`
+	RootDir       string              `toml:"home,omitempty"`
+	HttpAddr      string              `toml:"addr,omitempty"`           // 服务地址
+	Compactor     string              `toml:"compactor,omitempty"`      // 压缩算法
+	Pipe          string              `toml:"pipe,omitempty"`           // 传输管道
+	HttpPipePush  *HttpPipePushConfig `toml:"http_pipe_push,omitempty"` // HTTP 管道配置
+	BatchDuration int64               `toml:"batch_duration,omitempty"` // 批量传输最大间隔
+	BatchLength   int                 `toml:"batch_length,omitempty"`   // 批量传输最大长度
+	Collects      []*CollectConfig    `toml:"collects,omitempty"`       // 采集器配置
+	Debug         bool                `toml:"debug,omitempty"`
 }
 
 type HttpPipePushConfig struct {
-	Addr string `mapstructure:"addr"`
-	Auth string `mapstructure:"auth"`
+	Addr string `toml:"addr,omitempty"`
+	Auth string `toml:"auth,omitempty"`
 }
 
 type HttpPipePopConfig struct {
-	Auth    string `mapstructure:"auth"`
-	Pattern string `mapstructure:"pattern"`
+	Auth    string `toml:"auth,omitempty"`
+	Pattern string `toml:"pattern,omitempty"`
 }
 
 type CollectConfig struct {

@@ -1,23 +1,69 @@
-RootDir = ""
-HttpAddr = ":8071"
-Compactor = "gzip"
-Pipe = "http"
-BatchDuration = 5
-BatchLength = 100
-Debug = false
+addr = ":8071"
+compactor = "gzip"
+pipe = "http"
+batch_duration = 5
+batch_length = 100
 
-[HttpPipePush]
-  Addr = "http://127.0.0.1:8070/collect"
-  Auth = "midea"
+[http_pipe_push]
+  addr = "http://127.0.0.1:8070/collect"
+  auth = "midea"
 
-[[Collects]]
+[[collects]]
   Name = "CPUCount"
   Duration = 5
 
-[[Collects]]
+[[collects]]
   Name = "CPUInfo"
   Duration = 5
 
-[[Collects]]
+[[collects]]
   Name = "CPUTimes"
+  Duration = 5
+
+[[collects]]
+  Name = "Partitions"
+  Duration = 5
+
+[[collects]]
+  Name = "BootTime"
+  Duration = 5
+
+[[collects]]
+  Name = "KernelVersion"
+  Duration = 5
+
+[[collects]]
+  Name = "PlatformInfo"
+  Duration = 5
+
+[[collects]]
+  Name = "VirtualizationInfo"
+  Duration = 5
+
+[[collects]]
+  Name = "HostInfo"
+  Duration = 5
+
+[[collects]]
+  Name = "Users"
+  Duration = 5
+
+[[collects]]
+  Name = "Uptime"
+  Duration = 5
+
+[[collects]]
+  Name = "Avg"
+  Duration = 5
+
+[[collects]]
+  Name = "SwapMemory"
+  Duration = 5
+
+[[collects]]
+  Name = "VirtualMemory"
+  Duration = 5
+
+[[collects]]
+  Name = "Interfaces"
   Duration = 5

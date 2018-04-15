@@ -3,15 +3,15 @@ package config
 import "path/filepath"
 
 type ResourceConfig struct {
-	Redis []*DB `mapstructure:"redis" json:",omitempty"`
-	Etcd  []*DB `mapstructure:"etcd" json:",omitempty"`
+	Redis []*DB `toml:"redis,omitempty" json:",omitempty"`
+	Etcd  []*DB `toml:"etcd,omitempty" json:",omitempty"`
 }
 
 type DB struct {
-	Host   string `mapstructure:"host" json:",omitempty"`
-	Port   int    `mapstructure:"port" json:",omitempty"`
-	User   string `mapstructure:"user" json:",omitempty"`
-	Passwd string `mapstructure:"passwd" json:",omitempty"`
+	Host   string `toml:"host,omitempty" json:",omitempty"`
+	Port   int    `toml:"port,omitempty" json:",omitempty"`
+	User   string `toml:"user,omitempty" json:",omitempty"`
+	Passwd string `toml:"passwd,omitempty" json:",omitempty"`
 }
 
 func DefaultResourceConfig() *ResourceConfig {

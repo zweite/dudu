@@ -11,27 +11,27 @@ const (
 )
 
 type ProxyConfig struct {
-	RootDir  string `mapstructure:"home"`
-	HttpAddr string `mapstructure:"http_addr"`
+	RootDir  string `toml:"home,omitempty"`
+	HttpAddr string `toml:"http_addr,omitempty"`
 	// receiv data
-	HttpPipePop *HttpPipePopConfig `mapstructure:"http_pipe_pop"` // 数据接收
+	HttpPipePop *HttpPipePopConfig `toml:"http_pipe_pop,omitempty"` // 数据接收
 	// proc data mode
-	Mode string `mapstructure:"mode"` // 目前支持两种模式，一种是forward，另外一种是persistence
+	Mode string `toml:"mode,omitempty"` // 目前支持两种模式，一种是forward，另外一种是persistence
 	// persistence
-	Persistence *ProxyPersistenceConfig `mapstructure:"persistence"` // 持久化数据配置
+	Persistence *ProxyPersistenceConfig `toml:"persistence,omitempty"` // 持久化数据配置
 	// forward
-	Forward *ProxyForwardConfig `mapstructure:"forward"` // 转发配置
-	Debug   bool                `mapstructure:"debug"`
+	Forward *ProxyForwardConfig `toml:"forward,omitempty"` // 转发配置
+	Debug   bool                `toml:"debug,omitempty"`
 }
 
 type ProxyPersistenceConfig struct {
-	Engine    string `mapstructure:"engine"`     // 支持local influxdb
-	LocalPath string `mapstructure:"local_path"` // 先只写到一个文件中，后面再优化
+	Engine    string `toml:"engine,omitempty"`     // 支持local influxdb
+	LocalPath string `toml:"local_path,omitempty"` // 先只写到一个文件中，后面再优化
 }
 
 type ProxyForwardConfig struct {
-	Pipe         string              `mapstructure:"pipe"`           // 转发传输管道 支持kafka、http
-	HttpPipePush *HttpPipePushConfig `mapstructure:"http_pipe_push"` // HTTP管道配置
+	Pipe         string              `toml:"pipe,omitempty"`           // 转发传输管道 支持kafka、http
+	HttpPipePush *HttpPipePushConfig `toml:"http_pipe_push,omitempty"` // HTTP管道配置
 }
 
 func DefaultProxyConfig() *ProxyConfig {

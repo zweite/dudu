@@ -42,9 +42,9 @@ var (
 
 type Config struct {
 	BaseConfig
-	Proxy    *ProxyConfig    `mapstructure:"proxy" json:",omitempty"`
-	Agent    *AgentConfig    `mapstructure:"agent" json:",omitempty"`
-	Resource *ResourceConfig `mapstructure:"resource" json:",omitempty"`
+	Proxy    *ProxyConfig    `toml:"proxy,omitempty" json:",omitempty"`
+	Agent    *AgentConfig    `toml:"agent,omitempty" json:",omitempty"`
+	Resource *ResourceConfig `toml:"resource,omitempty" json:",omitempty"`
 }
 
 func (c *Config) SetRoot(root string) {
@@ -52,11 +52,11 @@ func (c *Config) SetRoot(root string) {
 }
 
 type BaseConfig struct {
-	RootDir  string `mapstructure:"home"`
-	HostName string `mapstructure:"host_name"` // 节点主机名
-	IPSeg    []byte `mapstructure:"ip_seg"`    // 本节点所属IP段
-	IP       string `mapstructure:"ip"`        // 本节点IP, 自动填充
-	LogLevel string `mapstructure:"log_level"`
+	RootDir  string `toml:"home,omitempty"`
+	HostName string `toml:"-"`                // 节点主机名
+	IPSeg    []byte `toml:"ip_seg,omitempty"` // 本节点所属IP段
+	IP       string `toml:"-"`                // 本节点IP, 自动填充
+	LogLevel string `toml:"log_level,omitempty"`
 }
 
 func DefaultConfig() *Config {
@@ -82,7 +82,6 @@ func DefaultBaseConfig() BaseConfig {
 	return BaseConfig{
 		IPSeg:    DefaultIPSeg(),
 		HostName: getHostName(),
-		IP:       getLocalIP(DefaultIPSeg()),
 		LogLevel: DefaultLogLevel(),
 	}
 }

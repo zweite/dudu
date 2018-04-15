@@ -1,12 +1,12 @@
 package proxy
 
 import (
+	"encoding/json"
+
 	"dudu/commons/log"
 	"dudu/models"
-	"encoding/json"
-	"fmt"
-
-	"github.com/shirou/gopsutil/cpu"
+	"dudu/modules/collector"
+	_ "dudu/modules/collector/collect"
 )
 
 type Parser struct {
@@ -19,37 +19,27 @@ func NewParser(logger log.Logger) *Parser {
 	}
 }
 
-func (p *Parser) Parser(metric models.MetricValue) []*models.CollectResult {
+func (p *Parser) Parser(metric *models.MetricValue) (successParseCollectResults []*models.CollectResult, err error) {
 	collectResults := make([]*models.CollectResult, 0, 100)
-	for _, collectResult := range collectResults {
-		if err := p.parser(collectResult); err != nil {
-			p.logger.Warnf("parse %s err:%s", collectResult.Metric, err.Error())
-		}
+	if err = json.Unmarshal(metric.Value, &collectResults); err != nil {
+		return
 	}
-	return collectResults
+
+	successParseCollectResults = make([]*models.CollectResult, 0, len(collectResults))
+	for _, collectResult := range collectResults {
+		if collectResult.Err == "" {
+			if err := p.parser(collectResult); err != nil {
+				p.logger.Warnf("parse %s err:%s", collectResult.Metric, err.Error())
+				continue
+			}
+		}
+
+		successParseCollectResults = append(successParseCollectResults, collectResult)
+	}
+	return
 }
 
 func (p *Parser) parser(result *models.CollectResult) (err error) {
-	if result.Err != "" {
-		return fmt.Errorf(result.Err)
-	}
-
-	switch result.Metric {
-	case "CPUCount":
-		var cpuCoount int
-		err = json.Unmarshal(result.Value, &cpuCoount)
-		result.RelValue = cpuCoount
-		return
-	case "CPUInfo":
-		infos := make([]cpu.InfoStat, 0, 10)
-		err = json.Unmarshal(result.Value, &infos)
-		result.RelValue = infos
-		return
-	case "CPUTimes":
-		stats := make([]cpu.TimesStat, 0, 10)
-		err = json.Unmarshal(result.Value, &stats)
-		result.RelValue = stats
-		return
-	}
-	return fmt.Errorf("%s type err, data:%+v", result.Metric, string(result.Value))
+	result.RelValue, err = collector.UnmarshalResult(result.Metric, result.Value)
+	return
 }

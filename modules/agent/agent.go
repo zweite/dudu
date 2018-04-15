@@ -9,7 +9,7 @@ import (
 	"dudu/commons/pipe"
 	"dudu/commons/util"
 	"dudu/config"
-	"dudu/modules/agent/collector"
+	"dudu/modules/collector"
 )
 
 type AgentNodeProvider func(*config.Config, log.Logger) (*AgentNode, error)

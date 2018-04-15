@@ -18,7 +18,6 @@ import (
 type ProxyNodeProvider func(*config.Config, log.Logger) (*ProxyNode, error)
 
 type ProxyNode struct {
-	mux       *sync.Mutex
 	router    *mux.Router
 	wg        *sync.WaitGroup
 	cfg       *config.Config
@@ -30,7 +29,6 @@ type ProxyNode struct {
 
 func NewProxyNode(cfg *config.Config, logger log.Logger) (*ProxyNode, error) {
 	return &ProxyNode{
-		mux:    new(sync.Mutex),
 		router: mux.NewRouter(),
 		wg:     new(sync.WaitGroup),
 		cfg:    cfg,
@@ -65,6 +63,7 @@ func (app *ProxyNode) Run() (err error) {
 	if err = app.startHttpServ(); err != nil {
 		return
 	}
+
 	return nil
 }
 
@@ -72,6 +71,7 @@ func (app *ProxyNode) Run() (err error) {
 func (app *ProxyNode) Stop() {
 	app.stopHttpServ()
 	app.stopPipe()
+	app.stopProc()
 	app.wg.Wait()
 	app.logger.Info("will close proxy node")
 }

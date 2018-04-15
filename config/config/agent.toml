@@ -37,10 +37,6 @@ batch_length = 100
   Duration = 5
 
 [[collects]]
-  Name = "VirtualizationInfo"
-  Duration = 5
-
-[[collects]]
   Name = "HostInfo"
   Duration = 5
 

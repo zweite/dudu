@@ -18,3 +18,7 @@ func NewForward(cfg *config.ProxyForwardConfig, resCfg *config.ResourceConfig) (
 func (f *Forward) Proc(data []byte) (err error) {
 	return
 }
+
+func (f *Forward) Stop() {
+
+}

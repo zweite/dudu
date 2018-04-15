@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/binary"
 	"sort"
+	"sync"
 )
 
 // Sort for []uint64
@@ -62,4 +63,20 @@ func IntInSlice(a int, list []int) bool {
 		}
 	}
 	return false
+}
+
+type AutoTrigger struct {
+	mux   sync.Mutex
+	count int
+}
+
+func (a *AutoTrigger) IncTrigger(length int, f func()) int {
+	a.mux.Lock()
+	defer a.mux.Unlock()
+	a.count++
+	if a.count >= length {
+		f()
+		a.count = 0
+	}
+	return a.count
 }

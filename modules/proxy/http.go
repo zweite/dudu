@@ -17,15 +17,11 @@ func (app *ProxyNode) startHttpServ() (err error) {
 
 	app.logger.Infof("start http serv on %s", app.cfg.Proxy.HttpAddr)
 
-	app.mux.Lock()
 	app.listener = listener
-	app.mux.Unlock()
 	return http.Serve(listener, app.router)
 }
 
 func (app *ProxyNode) stopHttpServ() {
-	app.mux.Lock()
 	app.listener.Close()
-	app.mux.Unlock()
 	app.logger.Info("close http serv")
 }

@@ -1,8 +1,10 @@
 package collect
 
 import (
+	"encoding/json"
+
 	"dudu/models"
-	"dudu/modules/agent/collector"
+	"dudu/modules/collector"
 
 	"github.com/shirou/gopsutil/net"
 )
@@ -26,6 +28,16 @@ func (c *Connections) Collect() (interface{}, error) {
 	return net.Connections(c.kind)
 }
 
+func (c *Connections) Marshal(res interface{}) ([]byte, error) {
+	return json.Marshal(res)
+}
+
+func (c *Connections) Unmarshal(data []byte) (interface{}, error) {
+	connectionStats := make([]net.ConnectionStat, 0, 10)
+	err := json.Unmarshal(data, &connectionStats)
+	return connectionStats, err
+}
+
 // 采集数据类型
 func (c *Connections) Type() models.MetricType {
 	return models.InfoMetricType
@@ -43,6 +55,16 @@ func (i *Interfaces) Collect() (interface{}, error) {
 	return net.Interfaces()
 }
 
+func (i *Interfaces) Marshal(res interface{}) ([]byte, error) {
+	return json.Marshal(res)
+}
+
+func (i *Interfaces) Unmarshal(data []byte) (interface{}, error) {
+	interfaceStats := make([]net.InterfaceStat, 0, 10)
+	err := json.Unmarshal(data, &interfaceStats)
+	return interfaceStats, err
+}
+
 // 采集数据类型
 func (i *Interfaces) Type() models.MetricType {
 	return models.InfoMetricType
@@ -55,4 +77,7 @@ func (i *Interfaces) Name() string {
 
 func init() {
 	collector.RegisterCollector(new(Interfaces))
+
+	collector.RegisterDefaultCollector(NewConnections(""))
+	collector.RegisterDefaultCollector(new(Interfaces))
 }

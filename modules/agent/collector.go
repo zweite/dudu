@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"dudu/models"
-	"dudu/modules/agent/collector"
-	_ "dudu/modules/agent/collector/collect"
+	"dudu/modules/collector"
+	_ "dudu/modules/collector/collect"
 )
 
 // 初始化采集管理器

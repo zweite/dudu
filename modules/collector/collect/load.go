@@ -1,8 +1,10 @@
 package collect
 
 import (
+	"encoding/json"
+
 	"dudu/models"
-	"dudu/modules/agent/collector"
+	"dudu/modules/collector"
 
 	"github.com/shirou/gopsutil/load"
 )
@@ -12,6 +14,16 @@ type Avg struct{}
 
 func (a *Avg) Collect() (interface{}, error) {
 	return load.Avg()
+}
+
+func (a *Avg) Marshal(res interface{}) ([]byte, error) {
+	return json.Marshal(res)
+}
+
+func (a *Avg) Unmarshal(data []byte) (interface{}, error) {
+	avg := new(load.AvgStat)
+	err := json.Unmarshal(data, avg)
+	return avg, err
 }
 
 func (a *Avg) Type() models.MetricType {
@@ -24,4 +36,6 @@ func (a *Avg) Name() string {
 
 func init() {
 	collector.RegisterCollector(new(Avg))
+
+	collector.RegisterDefaultCollector(new(Avg))
 }

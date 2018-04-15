@@ -1,27 +1,34 @@
 package collector
 
 import (
+	"encoding/json"
+	"fmt"
+	"strings"
+	"sync"
+	"time"
+
 	"dudu/commons/log"
 	"dudu/config"
 	"dudu/models"
-	"encoding/json"
-	"sync"
-	"time"
 )
 
 var (
-	__Collectors map[string]Collector
+	__Collectors           map[string]Collector
+	__DefaultCollectorsSet map[string]Collector
 )
 
 func init() {
 	__Collectors = make(map[string]Collector)
+	__DefaultCollectorsSet = make(map[string]Collector)
 }
 
 // 采集器
 type Collector interface {
-	Collect() (interface{}, error) // collect info
-	Type() models.MetricType       // 采集数据类型
-	Name() string                  // collector name
+	Collect() (interface{}, error)         // collect info
+	Marshal(interface{}) ([]byte, error)   // 编码
+	Unmarshal([]byte) (interface{}, error) // 解码
+	Type() models.MetricType               // 采集数据类型
+	Name() string                          // collector name
 }
 
 type CollectorManager struct {
@@ -145,7 +152,7 @@ func (c *CollectorManager) run(duration time.Duration, collector Collector) bool
 				if err != nil {
 					errMsg = err.Error()
 				} else {
-					msg, err = json.Marshal(result)
+					msg, err = collector.Marshal(result)
 					if err != nil {
 						errMsg = err.Error()
 					}
@@ -195,6 +202,45 @@ func RegisterCollector(collectors ...Collector) {
 		}
 		__Collectors[collector.Name()] = collector
 	}
+}
+
+// 注册全部类型采集器，以作为编码解码
+func RegisterDefaultCollector(collectors ...Collector) {
+	for _, collector := range collectors {
+		if _, ok := __DefaultCollectorsSet[collector.Name()]; ok {
+			// 重复注册
+			continue
+		}
+		__DefaultCollectorsSet[collector.Name()] = collector
+	}
+}
+
+func MarshalResult(name string, res interface{}) ([]byte, error) {
+	name = getDefaultCollectorName(name)
+	collector, ok := __DefaultCollectorsSet[name]
+	if !ok {
+		return nil, fmt.Errorf("not found %s collector", name)
+	}
+
+	return collector.Marshal(res)
+}
+
+func UnmarshalResult(name string, data []byte) (interface{}, error) {
+	name = getDefaultCollectorName(name)
+	collector, ok := __DefaultCollectorsSet[name]
+	if !ok {
+		return nil, fmt.Errorf("not found %s collector", name)
+	}
+	return collector.Unmarshal(data)
+}
+
+func getDefaultCollectorName(name string) string {
+	fields := strings.Split(name, "@")
+	if len(fields) == 2 {
+		name = "@" + fields[1]
+	}
+
+	return name
 }
 
 // 获取全部采集器

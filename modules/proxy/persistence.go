@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"dudu/commons/log"
+	"dudu/commons/util"
 	"encoding/json"
 	"fmt"
 
@@ -11,11 +12,13 @@ import (
 )
 
 type Persistence struct {
+	trigger      util.AutoTrigger // flush 长度
 	logger       log.Logger
 	cfg          *config.ProxyPersistenceConfig
 	resCfg       *config.ResourceConfig
 	compactorSet map[string]compactor.Compactor
 	persistor    Persistor
+	parser       *Parser
 }
 
 func NewPersistence(
@@ -37,9 +40,16 @@ func NewPersistence(
 		cfg:          cfg,
 		resCfg:       resCfg,
 		logger:       logger,
+		parser:       NewParser(logger),
 		persistor:    persistor,
 		compactorSet: compactor.GetCompactorSet(),
 	}, err
+}
+
+func (p *Persistence) Stop() {
+	if err := p.persistor.Flush(); err != nil {
+		p.logger.Warnf("persistor flush err:%s", err.Error())
+	}
 }
 
 // 存储需解压数据
@@ -63,15 +73,61 @@ func (p *Persistence) Proc(data []byte) (err error) {
 		metric.Value = value
 	}
 
+	// WAL
+	// 持久化
 	data, err = json.Marshal(metric)
+	if err == nil {
+		// 写入数据
+		if _, err = p.persistor.Write(append(data, '\n')); err == nil {
+			// 刷盘
+			p.trigger.IncTrigger(100, func() {
+				err = p.persistor.Flush()
+			})
+		}
+	}
+
 	if err != nil {
 		return
 	}
 
-	if _, err = p.persistor.Write(append(data, '\n')); err != nil {
+	// 解析数据
+	collectResults, err := p.parser.Parser(metric)
+	if err != nil {
 		return
 	}
 
-	// 刷盘策略有问题，可能会导致磁盘碎片产生
-	return p.persistor.Flush()
+	for _, collectResult := range collectResults {
+		if collectResult.Err != "" {
+			p.logger.Warnf("endPoint:%s Metric:%s collect err:%s",
+				metric.Endpoint, collectResult.Metric, collectResult.Err)
+			continue
+		}
+
+		if err := p.procResult(metric, collectResult); err != nil {
+			p.logger.Warnf("endPoint:%s Metric:%s proc collect result err:%s",
+				metric.Endpoint, collectResult.Metric, err.Error())
+		}
+	}
+	return
+}
+
+func (p *Persistence) procResult(metric *models.MetricValue, collectResult *models.CollectResult) error {
+	switch collectResult.Type {
+	case models.InfoMetricType:
+		return p.procInfoResult(metric, collectResult)
+	case models.IndicatorMetricType:
+		return p.procIndicatorResult(metric, collectResult)
+	}
+
+	return fmt.Errorf("not found the metric type")
+}
+
+func (p *Persistence) procInfoResult(metric *models.MetricValue, collectResult *models.CollectResult) (err error) {
+	p.logger.Infof("%s %+v", metric.Endpoint, collectResult)
+	return
+}
+
+func (p *Persistence) procIndicatorResult(metric *models.MetricValue, collectResult *models.CollectResult) (err error) {
+	p.logger.Infof("%s %+v", metric.Endpoint, collectResult)
+	return
 }

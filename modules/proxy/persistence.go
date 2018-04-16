@@ -62,7 +62,8 @@ func getInfoPersistor(engine string) (infoPersistor InfoPersistor, err error) {
 	case "mongo":
 		infoPersistor, err = NewMongoPersistor("base")
 	case "influx":
-
+		resCfg := config.ParseResourceConfig()
+		infoPersistor, err = NewInfluxPersistor(resCfg.Influx)
 	default:
 		return nil, fmt.Errorf("persistor not found 【%s】", engine)
 	}
@@ -128,8 +129,8 @@ func (p *Persistence) Proc(data []byte) (err error) {
 		}
 
 		if err := p.procResult(metric, collectResult); err != nil {
-			p.logger.Warnf("endPoint:%s Metric:%s proc collect result err:%s",
-				metric.Endpoint, collectResult.Metric, err.Error())
+			p.logger.Warnf("endPoint:%s Metric:%s proc collect result data:%+v err:%s",
+				metric.Endpoint, collectResult.Metric, collectResult, err.Error())
 		}
 	}
 
@@ -152,14 +153,15 @@ func (p *Persistence) procResult(metric *models.MetricValue, collectResult *mode
 }
 
 func (p *Persistence) procInfoResult(metric *models.MetricValue, collectResult *models.CollectResult) (err error) {
-	p.infoPersistor.Save(
+	return p.infoPersistor.Save(
 		metric.Endpoint, metric.HostName,
 		collectResult.Metric, collectResult.RelValue, collectResult.Version,
 	)
-	return
 }
 
 func (p *Persistence) procIndicatorResult(metric *models.MetricValue, collectResult *models.CollectResult) (err error) {
-	p.logger.Infof("%s %s %+v", metric.Endpoint, metric.HostName, collectResult.RelValue)
-	return
+	return p.indicatorPersistor.Save(
+		metric.Endpoint, metric.HostName,
+		collectResult.Metric, collectResult.RelValue, collectResult.Version,
+	)
 }

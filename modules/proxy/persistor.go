@@ -3,12 +3,19 @@ package proxy
 import (
 	"bufio"
 	"bytes"
-	"dudu/commons/mymgo"
-	"dudu/commons/util"
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
+	"time"
 
+	"dudu/commons/mymgo"
+	"dudu/commons/util"
+	"dudu/config"
+
+	client "github.com/influxdata/influxdb/client/v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -22,6 +29,7 @@ type Persistor interface {
 // 信息存储
 type InfoPersistor interface {
 	Save(endpoint, hostname, metric string, value interface{}, version int64) error
+	Close() error
 }
 
 type FilePersistor struct {
@@ -140,4 +148,121 @@ func (m *MongoPersistor) Save(endPoint, hostName, metric string, value interface
 		Value:    value,
 		Version:  version,
 	})
+}
+
+func (m *MongoPersistor) Close() error {
+	return nil
+}
+
+type InfluxPersistor struct {
+	httpClient client.Client
+	db         string
+}
+
+func NewInfluxPersistor(cfg *config.DBConfig) (*InfluxPersistor, error) {
+	httpClient, err := client.NewHTTPClient(client.HTTPConfig{
+		Addr:     fmt.Sprintf("http://%s:%d", cfg.Host, cfg.Port),
+		Username: cfg.User,
+		Password: cfg.Passwd,
+		Timeout:  time.Second * 30, // 默认30s写超时
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &InfluxPersistor{
+		httpClient: httpClient,
+		db:         cfg.Db,
+	}, nil
+}
+
+func (influx *InfluxPersistor) Save(endPoint, hostName, metric string,
+	value interface{}, version int64) (err error) {
+
+	bp, _ := client.NewBatchPoints(client.BatchPointsConfig{
+		Database:  influx.db,
+		Precision: "ms",
+	})
+
+	tags := map[string]string{
+		"endPoint": endPoint,
+		"hostName": hostName,
+		"metric":   metric,
+	}
+
+	fields := make(map[string]interface{})
+
+	t := reflect.TypeOf(value)
+	switch t.Kind() {
+	case reflect.Bool:
+		fallthrough
+	case reflect.Int:
+		fallthrough
+	case reflect.Int8:
+		fallthrough
+	case reflect.Int16:
+		fallthrough
+	case reflect.Int32:
+		fallthrough
+	case reflect.Int64:
+		fallthrough
+	case reflect.Uint:
+		fallthrough
+	case reflect.Uint8:
+		fallthrough
+	case reflect.Uint16:
+		fallthrough
+	case reflect.Uint32:
+		fallthrough
+	case reflect.Uint64:
+		if u, ok := value.(uint64); ok {
+			value = int64(u) // 这里是个坑，需要注意!!!
+		}
+		fallthrough
+	case reflect.Float32:
+		fallthrough
+	case reflect.Float64:
+		fields[metric] = value
+	case reflect.Array:
+		fallthrough
+	case reflect.Slice:
+		v := reflect.ValueOf(value)
+		for i := 0; i < v.Len(); i++ {
+			if err := influx.Save(endPoint, hostName, metric, v.Index(i).Interface(), version); err != nil {
+				continue
+			}
+		}
+		return
+
+	case reflect.Map:
+		fallthrough
+	case reflect.Struct:
+		fallthrough
+	case reflect.Ptr:
+		data, err := json.Marshal(value)
+		if err != nil {
+			return err
+		}
+
+		if err := json.Unmarshal(data, &fields); err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("can't support data type:%s", t.Kind().String())
+	}
+
+	// version is millisecond
+	// 1000 = time.Second/time.Millisecond
+	timeVersion := time.Unix(version/1000, version%1000*int64(time.Millisecond/time.Nanosecond))
+	pt, err := client.NewPoint(metric, tags, fields, timeVersion)
+	if err != nil {
+		return
+	}
+
+	bp.AddPoint(pt)
+	return influx.httpClient.Write(bp)
+}
+
+func (influx *InfluxPersistor) Close() error {
+	return influx.httpClient.Close()
 }

@@ -18,6 +18,12 @@ func init() {
 	cacheSess = make(map[string]*MdbSession)
 }
 
+// if can't dial mongodb that it will be panic
+func OpenCfg(mgoCfgs []*config.DBConfig) (sess *MdbSession) {
+	sess = GetDb(mgoCfgs)
+	return
+}
+
 func Open(name string) (sess *MdbSession, err error) {
 	var ok bool
 	mux.RLock()

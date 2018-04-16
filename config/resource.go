@@ -3,9 +3,10 @@ package config
 import "path/filepath"
 
 type ResourceConfig struct {
-	Redis map[string][]*DBConfig `toml:"redis,omitempty" json:",omitempty"` // redis
-	Etcd  map[string][]*DBConfig `toml:"etcd,omitempty" json:",omitempty"`  // etcd
-	Mongo map[string][]*DBConfig `toml:"mongo,omitempty" json:",omitempty"` // mongo
+	Redis  map[string][]*DBConfig `toml:"redis,omitempty" json:",omitempty"`  // redis
+	Etcd   map[string][]*DBConfig `toml:"etcd,omitempty" json:",omitempty"`   // etcd
+	Mongo  map[string][]*DBConfig `toml:"mongo,omitempty" json:",omitempty"`  // mongo
+	Influx *DBConfig              `toml:"influx,omitempty" json:",omitempty"` // influx 暂不支持集群方案
 }
 
 type DBConfig struct {
@@ -51,6 +52,11 @@ func DefaultResourceConfig() *ResourceConfig {
 					Db:   "dudu",
 				},
 			},
+		},
+		Influx: &DBConfig{
+			Host: "127.0.0.1",
+			Port: 8086,
+			Db:   "dudu",
 		},
 	}
 

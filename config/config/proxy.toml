@@ -8,6 +8,8 @@ mode = "persistence"
 [persistence]
   wal_engine = "local"
   local_path = "/Users/zweite/Documents/go_proj/src/dudu/config/data/persistence.data"
+  InfoStorage = "mongo"
+  indicator_storage = "influx"
 
 [forward]
   pipe = "http"

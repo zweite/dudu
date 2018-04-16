@@ -1,15 +1,26 @@
-[[redis]]
-  host = "127.0.0.1"
-  port = 6379
+[redis]
 
-[[etcd]]
-  host = "127.0.0.1"
-  port = 4010
+  [[redis.base]]
+    host = "127.0.0.1"
+    port = 6379
 
-[[etcd]]
-  host = "127.0.0.1"
-  port = 4011
+[etcd]
 
-[[etcd]]
-  host = "127.0.0.1"
-  port = 4012
+  [[etcd.base]]
+    host = "127.0.0.1"
+    port = 4010
+
+  [[etcd.base]]
+    host = "127.0.0.1"
+    port = 4011
+
+  [[etcd.base]]
+    host = "127.0.0.1"
+    port = 4012
+
+[mongo]
+
+  [[mongo.base]]
+    host = "127.0.0.1"
+    port = 27029
+    db = "dudu"

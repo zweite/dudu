@@ -25,8 +25,11 @@ type ProxyConfig struct {
 }
 
 type ProxyPersistenceConfig struct {
-	Engine    string `toml:"engine,omitempty"`     // 支持local influxdb
+	WALEngine string `toml:"wal_engine,omitempty"` // 支持local
 	LocalPath string `toml:"local_path,omitempty"` // 先只写到一个文件中，后面再优化
+
+	InfoStorage      string `toml:"info_storage,omitempty`       // 信息存储 支持mongo
+	IndicatorStorage string `toml:"indicator_storage,omitempty"` // 指标存储 支持
 }
 
 type ProxyForwardConfig struct {
@@ -51,8 +54,10 @@ func DefaultProxyMode() string {
 
 func DefaultProxyPersistenceConfig() *ProxyPersistenceConfig {
 	return &ProxyPersistenceConfig{
-		Engine:    "local",                                                // 默认本地存储
-		LocalPath: filepath.Join(DefaultDir, dataDir, "persistence.data"), // 本地存储默认路径
+		WALEngine:        "local",                                                // 默认本地存储
+		LocalPath:        filepath.Join(DefaultDir, dataDir, "persistence.data"), // 本地存储默认路径
+		InfoStorage:      "mongo",                                                // mongodb
+		IndicatorStorage: "influx",                                               // influxdb
 	}
 }
 

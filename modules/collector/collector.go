@@ -160,6 +160,7 @@ func (c *CollectorManager) run(duration time.Duration, collector Collector) bool
 				c.collectResultChan <- &models.CollectResult{
 					Metric:  collector.Name(),
 					Value:   msg,
+					Type:    collector.Type(),
 					Version: time.Now().UnixNano() / int64(time.Millisecond),
 					Err:     errMsg,
 				}

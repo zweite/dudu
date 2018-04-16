@@ -6,7 +6,7 @@ mode = "persistence"
   pattern = "/collect"
 
 [persistence]
-  engine = "local"
+  wal_engine = "local"
   local_path = "/Users/zweite/Documents/go_proj/src/dudu/config/data/persistence.data"
 
 [forward]

@@ -3,37 +3,53 @@ package config
 import "path/filepath"
 
 type ResourceConfig struct {
-	Redis []*DB `toml:"redis,omitempty" json:",omitempty"`
-	Etcd  []*DB `toml:"etcd,omitempty" json:",omitempty"`
+	Redis map[string][]*DBConfig `toml:"redis,omitempty" json:",omitempty"` // redis
+	Etcd  map[string][]*DBConfig `toml:"etcd,omitempty" json:",omitempty"`  // etcd
+	Mongo map[string][]*DBConfig `toml:"mongo,omitempty" json:",omitempty"` // mongo
 }
 
-type DB struct {
-	Host   string `toml:"host,omitempty" json:",omitempty"`
-	Port   int    `toml:"port,omitempty" json:",omitempty"`
-	User   string `toml:"user,omitempty" json:",omitempty"`
-	Passwd string `toml:"passwd,omitempty" json:",omitempty"`
+type DBConfig struct {
+	Host    string `toml:"host,omitempty" json:",omitempty"`
+	Port    int    `toml:"port,omitempty" json:",omitempty"`
+	Db      string `toml:"db,omitempty" json:",omitempty"`
+	User    string `toml:"user,omitempty" json:",omitempty"`
+	Passwd  string `toml:"passwd,omitempty" json:",omitempty"`
+	Options string `toml:"options,omitempty" json:",omitempty"`
 }
 
 func DefaultResourceConfig() *ResourceConfig {
 	config := &ResourceConfig{
-		Redis: []*DB{
-			&DB{
-				Host: "127.0.0.1",
-				Port: 6379,
+		Redis: map[string][]*DBConfig{
+			"base": []*DBConfig{
+				&DBConfig{
+					Host: "127.0.0.1",
+					Port: 6379,
+				},
 			},
 		},
-		Etcd: []*DB{
-			&DB{
-				Host: "127.0.0.1",
-				Port: 4010,
+		Etcd: map[string][]*DBConfig{
+			"base": []*DBConfig{
+				&DBConfig{
+					Host: "127.0.0.1",
+					Port: 4010,
+				},
+				&DBConfig{
+					Host: "127.0.0.1",
+					Port: 4011,
+				},
+				&DBConfig{
+					Host: "127.0.0.1",
+					Port: 4012,
+				},
 			},
-			&DB{
-				Host: "127.0.0.1",
-				Port: 4011,
-			},
-			&DB{
-				Host: "127.0.0.1",
-				Port: 4012,
+		},
+		Mongo: map[string][]*DBConfig{
+			"base": []*DBConfig{
+				&DBConfig{
+					Host: "127.0.0.1",
+					Port: 27017,
+					Db:   "dudu",
+				},
 			},
 		},
 	}

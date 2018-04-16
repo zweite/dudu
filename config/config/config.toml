@@ -1,2 +1,2 @@
-ip_seg = [192, 168]
+ip_seg = [10, 73]
 log_level = "info"

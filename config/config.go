@@ -49,6 +49,7 @@ type Config struct {
 
 func (c *Config) SetRoot(root string) {
 	c.Proxy.RootDir = root
+	c.Agent.RootDir = root
 }
 
 type BaseConfig struct {
@@ -132,6 +133,20 @@ func DefaultLogLevelInt() logrus.Level {
 		Exit(err.Error())
 	}
 	return level
+}
+
+// 输入配置中的地址，默认地址
+// 优先取命令行参数中的地址，第二为配置文件中的地址，默认为默认地址
+func getHttpAddr(httpAddr, defaultHttpAddr string) string {
+	addr := viper.GetString(HttpAddrFlag)
+	if addr != "" && addr != defaultHttpAddr {
+		httpAddr = addr
+	}
+
+	if httpAddr == "" {
+		httpAddr = defaultHttpAddr
+	}
+	return httpAddr
 }
 
 // 写入配置文件

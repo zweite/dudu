@@ -54,7 +54,13 @@ func (app *AgentNode) NodeInfo() string {
 	return util.BytesToString(data)
 }
 
-func (app *AgentNode) Run() error {
+func (app *AgentNode) Run() {
+	if err := app.run(); err != nil {
+		panic(err)
+	}
+}
+
+func (app *AgentNode) run() (err error) {
 	app.startCollect()
 	return nil
 }

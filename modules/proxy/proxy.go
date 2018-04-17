@@ -55,7 +55,13 @@ func (app *ProxyNode) NodeInfo() string {
 }
 
 // 运行节点
-func (app *ProxyNode) Run() (err error) {
+func (app *ProxyNode) Run() {
+	if err := app.run(); err != nil {
+		panic(err)
+	}
+}
+
+func (app *ProxyNode) run() (err error) {
 	if err = app.startPipe(); err != nil {
 		return
 	}

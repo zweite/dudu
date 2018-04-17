@@ -1,4 +1,3 @@
-addr = ":8071"
 compactor = "gzip"
 pipe = "http"
 batch_duration = 5

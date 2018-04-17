@@ -8,7 +8,6 @@ import (
 
 type AgentConfig struct {
 	RootDir       string              `toml:"home,omitempty"`
-	HttpAddr      string              `toml:"addr,omitempty"`           // 服务地址
 	Compactor     string              `toml:"compactor,omitempty"`      // 压缩算法
 	Pipe          string              `toml:"pipe,omitempty"`           // 传输管道
 	HttpPipePush  *HttpPipePushConfig `toml:"http_pipe_push,omitempty"` // HTTP 管道配置
@@ -35,7 +34,6 @@ type CollectConfig struct {
 
 func DefaultAgentConfig() *AgentConfig {
 	config := &AgentConfig{
-		HttpAddr:      ":8071",
 		BatchDuration: 5,
 		BatchLength:   100,
 		Compactor:     DefaultCompactor(),
@@ -91,7 +89,8 @@ func ParseAgentConfig() *AgentConfig {
 	if err := decodeConfig(path, config); err != nil {
 		Exit("parse agent config err:" + err.Error())
 	}
-	config.HttpAddr = viper.GetString(HttpAddrFlag)
+
+	// config.HttpAddr = getHttpAddr(config.HttpAddr, DefaultAgentConfig().HttpAddr)
 	config.Debug = viper.GetBool(DebugFlag)
 	return config
 }

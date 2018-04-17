@@ -4,15 +4,12 @@ import (
 	"fmt"
 
 	"dudu/commons/event"
-	"dudu/config"
 	"dudu/modules/agent"
 
 	"github.com/spf13/cobra"
 )
 
-func AddAgentNodeFlags(cmd *cobra.Command) {
-	cmd.Flags().String(config.HttpAddrFlag, cfg.Agent.HttpAddr, "node http addr")
-}
+func AddAgentNodeFlags(cmd *cobra.Command) {}
 
 func NewAgentNodeCmd(nodeProvider agent.AgentNodeProvider) *cobra.Command {
 	cmd := &cobra.Command{

@@ -79,7 +79,7 @@ func ParseProxyConfig() *ProxyConfig {
 		Exit("parse proxy config err:" + err.Error())
 	}
 
-	config.HttpAddr = viper.GetString(HttpAddrFlag)
+	config.HttpAddr = getHttpAddr(config.HttpAddr, DefaultProxyConfig().HttpAddr)
 	config.Debug = viper.GetBool(DebugFlag)
 	return config
 }

@@ -1,0 +1,52 @@
+package: dudu
+import:
+- package: github.com/BurntSushi/toml
+  version: ^0.3.0
+- package: github.com/gogo/protobuf
+  version: ^1.0.0
+  subpackages:
+  - gogoproto
+  - proto
+- package: github.com/golang/snappy
+- package: github.com/gorilla/mux
+  version: ^1.6.1
+- package: github.com/influxdata/influxdb
+  version: ^1.5.2
+  subpackages:
+  - client/v2
+- package: github.com/pkg/errors
+  version: ^0.8.0
+- package: github.com/shirou/gopsutil
+  version: ^2.18.3
+  subpackages:
+  - cpu
+  - disk
+  - host
+  - load
+  - mem
+  - net
+- package: github.com/sirupsen/logrus
+  version: ^1.0.5
+- package: github.com/spf13/cobra
+  version: ^0.0.2
+- package: github.com/spf13/viper
+  version: ^1.0.2
+- package: github.com/tendermint/tmlibs
+  version: ^0.8.2-rc1
+  subpackages:
+  - log
+- package: gopkg.in/mgo.v2
+  subpackages:
+  - bson
+testImport:
+- package: github.com/fortytw2/leaktest
+  version: ^1.2.0
+- package: github.com/smartystreets/goconvey
+  version: ^1.6.3
+  subpackages:
+  - convey
+- package: github.com/stretchr/testify
+  version: ^1.2.1
+  subpackages:
+  - assert
+  - require
